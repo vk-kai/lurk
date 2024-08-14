@@ -69,3 +69,4 @@ def Xss_filter(content):
     return content
 if __name__ == '__main__':
     print(Xss_filter('<script>alert(1)</script>'))
+    print(Xss_filter('<p>111</p>'))
