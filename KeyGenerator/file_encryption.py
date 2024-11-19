@@ -1,10 +1,12 @@
 import os
 from cryptography.fernet import Fernet
 from key_generator import KeyManager
+from typing import Optional
+
 FILE_KEYS_FILE = "file_keys.json"  # 保存文件与密钥的关联信息
 
 
-def encrypt_file(file_path, key):
+def encrypt_file(file_path: str, key: bytes) -> None:
     """加密指定文件并保存加密后的文件."""
     with open(file_path, 'rb') as f:
         file_data = f.read()
@@ -13,12 +15,13 @@ def encrypt_file(file_path, key):
     encrypted_data = Fernet(key).encrypt(file_data)
 
     # 保存加密后的文件，覆盖原文件
-    with open(file_path+'_encrypted', 'wb') as f:
+    with open(file_path + '_encrypted', 'wb') as f:
         f.write(encrypted_data)
 
     print(f"文件 {file_path} 已加密。")
 
-def decrypt_file(file_path, virtual_key,key_manager):
+
+def decrypt_file(file_path: str, virtual_key: str, key_manager: KeyManager) -> Optional[bytes]:
     """解密指定的加密文件."""
     with open(file_path, 'rb') as f:
         encrypted_data = f.read()
@@ -32,10 +35,10 @@ def decrypt_file(file_path, virtual_key,key_manager):
         except Exception:
             raise ValueError("解密失败，钥均无效。")
     else:
-        return False
+        return None
 
 
-def get_user_input():
+def get_user_input() -> tuple[str, int, str, str]:
     """获取用户输入以创建密钥."""
     # 选择要加密的文件
     while True:
@@ -48,11 +51,12 @@ def get_user_input():
     num_keys = int(input("请输入要生成的密钥数量: "))
     expiry = input("请输入密钥的过期时间（天数，输入 'vip' 为永久有效）: ")
     reusable = input("请输入密钥可以重复使用的次数（输入 'always' 为无限次，输入 '无' 表示作废）: ")
-    return file_path,num_keys, expiry, reusable
+    return file_path, num_keys, expiry, reusable
+
 
 if __name__ == "__main__":
     file_path, num_keys, expiry, reusable = get_user_input()
-    key_manager=KeyManager(num_keys, expiry, reusable)
+    key_manager = KeyManager(num_keys, expiry, reusable)
     real_key = key_manager.real_key
     # 加密文件
     encrypt_file(file_path, real_key)  # 使用真实密钥加密文件
@@ -62,7 +66,7 @@ if __name__ == "__main__":
         exit()
     # 解密文件并将结果存储在 data 变量中
     try:
-        data = decrypt_file(file_path+'_encrypted', selected_key,key_manager)
+        data = decrypt_file(file_path + '_encrypted', selected_key, key_manager)
         if data:
             print("解密后的数据内容:")
             print(data.decode('utf-8', errors='ignore'))  # 尝试以 UTF-8 解码并处理可能的错误
