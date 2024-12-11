@@ -7,7 +7,12 @@ import logging
 from hashlib import sha256
 from time import sleep
 
-logging.basicConfig(filename='password_check.log', level=logging.INFO, format='%(asctime)s - %(message)s')
+logging.basicConfig(
+    filename='password_check.log',  # 日志文件路径
+    level=logging.INFO,  # 设置日志级别为 INFO
+    format='[%(levelname)s][%(asctime)s][%(module)s:%(lineno)d] %(message)s',  # 定制日志格式
+    datefmt='%Y-%m-%d %H:%M:%S'  # 定制时间格式
+)
 
 EMERGENCY_PASSWORD = os.getenv('EMERGENCY_PASSWORD', 'emergency123')  # 默认紧急口令
 SALT = os.getenv('PASSWORD_SALT', 'randomsalt')  # 默认盐值，可以更改为更安全的方式
